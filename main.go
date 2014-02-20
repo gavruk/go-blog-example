@@ -14,32 +14,34 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/index.html", "templates/header.html", "templates/footer.html")
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
+		return
 	}
 
 	t.ExecuteTemplate(w, "index", posts)
-
 }
 
 func writeHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/write.html", "templates/header.html", "templates/footer.html")
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
+		return
 	}
 
 	t.ExecuteTemplate(w, "write", nil)
-
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/write.html", "templates/header.html", "templates/footer.html")
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
+		return
 	}
 
 	id := r.FormValue("id")
 	post, found := posts[id]
 	if !found {
 		http.NotFound(w, r)
+		return
 	}
 
 	t.ExecuteTemplate(w, "write", post)
@@ -69,6 +71,7 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 	if id == "" {
 		http.NotFound(w, r)
+		return
 	}
 
 	delete(posts, id)
@@ -81,7 +84,6 @@ func main() {
 
 	posts = make(map[string]*models.Post, 0)
 
-	// /css/app.css
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets/"))))
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/write", writeHandler)
