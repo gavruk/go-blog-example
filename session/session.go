@@ -1,40 +1,71 @@
 package session
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/gavruk/go-blog-example/utils"
+
+	"github.com/go-martini/martini"
 )
 
-type sessionData struct {
+const (
+	COOKIE_NAME = "sessionId"
+)
+
+type Session struct {
+	id       string
 	Username string
 }
 
-type Session struct {
-	data map[string]*sessionData
+type SessionStore struct {
+	data map[string]*Session
 }
 
-func NewSession() *Session {
-	s := new(Session)
-
-	s.data = make(map[string]*sessionData)
-
+func NewSessionStore() *SessionStore {
+	s := new(SessionStore)
+	s.data = make(map[string]*Session)
 	return s
 }
 
-func (s *Session) Init(username string) string {
+func (store *SessionStore) Get(sessionId string) *Session {
+	session := store.data[sessionId]
+	if session == nil {
+		return &Session{id: sessionId}
+	}
+	return session
+}
+
+func (store *SessionStore) Set(session *Session) {
+	store.data[session.id] = session
+}
+
+func ensureCookie(r *http.Request, w http.ResponseWriter) string {
+	cookie, _ := r.Cookie(COOKIE_NAME)
+	if cookie != nil {
+		return cookie.Value
+	}
 	sessionId := utils.GenerateId()
 
-	data := &sessionData{Username: username}
-	s.data[sessionId] = data
+	cookie = &http.Cookie{
+		Name:    COOKIE_NAME,
+		Value:   sessionId,
+		Expires: time.Now().Add(5 * time.Minute),
+	}
+	http.SetCookie(w, cookie)
 
 	return sessionId
 }
 
-func (s *Session) Get(sessionId string) string {
-	data := s.data[sessionId]
+var sessionStore = NewSessionStore()
 
-	if data == nil {
-		return ""
-	}
+func Middleware(ctx martini.Context, r *http.Request, w http.ResponseWriter) {
+	sessionId := ensureCookie(r, w)
+	session := sessionStore.Get(sessionId)
 
-	return data.Username
+	ctx.Map(session)
+
+	ctx.Next()
+
+	sessionStore.Set(session)
 }
