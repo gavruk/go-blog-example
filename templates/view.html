@@ -1,0 +1,20 @@
+<div class="row">
+	<div class="col-xs-2">
+	</div>
+	<div class="col-xs-8">
+	  <div class="row">
+		<div class="col-xs-12">
+		  <h1>{{.Post.Title }}</h1>
+		</div>
+	  </div>
+	  <div class="row">
+		<div class="col-xs-12">
+		  {{.Post.ContentHtml | unescape }}
+		</div>
+	  </div>
+	</div>
+	<div class="col-xs-2">
+	</div>
+</div>
+
+<script type="text/javascript" src="/assets/js/write.js"></script>

@@ -14,8 +14,9 @@ const (
 )
 
 type Session struct {
-	id       string
-	Username string
+	id           string
+	Username     string
+	IsAuthorized bool
 }
 
 type SessionStore struct {

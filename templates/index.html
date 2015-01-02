@@ -1,10 +1,14 @@
 <div>
-    {{ range $value := . }}
+    {{ range $value := .Posts }}
     <div class="row">
         <div class="col-xs-2">
         </div>
         <div class="col-xs-8">
+		  {{if $.IsAuthorized}}
             <h1><a href="/edit/{{$value.Id}}">{{ $value.Title }}</a></h1>
+		  {{else}}
+            <h1><a href="/view/{{$value.Id}}">{{ $value.Title }}</a></h1>
+		  {{end}}
         </div>
         <div class="col-xs-2">
         </div>
